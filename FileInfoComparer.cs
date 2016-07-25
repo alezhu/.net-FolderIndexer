@@ -1,43 +1,40 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Collections;
 using System.Text.RegularExpressions;
 
 
 namespace folderindexer
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public class FileInfoComparer:IComparer
-	{
-		private Regex re = new Regex(@"\D");
-		public FileInfoComparer()
-		{
-			// 
-			// TODO: Add constructor logic here
-			//
-		}
+    /// <summary>
+    /// 
+    /// </summary>
+    public class FileInfoComparer : IComparer<FileInfo>
+    {
+        private static readonly Regex re = new Regex(@"\D");
 
-		int IComparer.Compare(Object a, Object b) {
-			FileInfo fia , fib;
-			fia = (FileInfo)a;
-			fib = (FileInfo)b;
-			string sa = re.Replace(fia.Name,"");
-			string sb = re.Replace(fib.Name,"");
-			if ((sa.Length==0)||(sb.Length==0)) {
-				return fia.Name.CompareTo(fib.Name);
-			} else {
-				try {
-					Int64 ia = Int64.Parse(sa);
-					Int64 ib = Int64.Parse(sb);
-					ib = ia-ib;
-					return (int) ib;
-				}
-				catch {
-					return fia.Name.CompareTo(fib.Name);
-				}
-			}
-		}
-	}
+        public int Compare(FileInfo x, FileInfo y)
+        {
+            string sa = re.Replace(x.Name, "");
+            string sb = re.Replace(y.Name, "");
+            if ((sa.Length == 0) || (sb.Length == 0))
+            {
+                return x.Name.CompareTo(y.Name);
+            }
+            else
+            {
+                Int64 ia, ib;
+                int result = 0;
+                if (Int64.TryParse(sa, out ia) && Int64.TryParse(sb, out ib))
+                {
+                    result = ia.CompareTo(ib);
+                }
+                if (result == 0)
+                {
+                    result = x.Name.CompareTo(y.Name);
+                }
+                return result;
+            }
+        }
+    }
 }
